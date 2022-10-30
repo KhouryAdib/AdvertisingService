@@ -30,7 +30,7 @@ public class TargetingEvaluator {
      */
     public TargetingPredicateResult evaluate(TargetingGroup targetingGroup) {
         List<TargetingPredicate> targetingPredicates = targetingGroup.getTargetingPredicates();
-        boolean allTruePredicates = true;
+     /*   boolean allTruePredicates = true;
         for (TargetingPredicate predicate : targetingPredicates) {
             TargetingPredicateResult predicateResult = predicate.evaluate(requestContext);
             if (!predicateResult.isTrue()) {
@@ -41,5 +41,14 @@ public class TargetingEvaluator {
 
         return allTruePredicates ? TargetingPredicateResult.TRUE :
                                    TargetingPredicateResult.FALSE;
+
+      */
+
+
+
+        return targetingPredicates.stream()
+                .allMatch((TargetingPredicate targetingPredicate) -> targetingPredicate.evaluate(requestContext).isTrue())
+                ? TargetingPredicateResult.TRUE :
+                TargetingPredicateResult.FALSE;
     }
 }
