@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 /**
@@ -74,11 +75,11 @@ public class AdvertisementSelectionLogic {
                 {
 
                   List<TargetingGroup> targetingGroupList = targetingGroupDao.get(advertisementContent.getContentId());
-                  //sort list here
-
+                   //sort list here
+                   targetingGroupList = targetingGroupList.stream().sorted(Comparator.comparingDouble(TargetingGroup::getClickThroughRate)).collect(Collectors.toList());
 
                     for(TargetingGroup targetingGroup: targetingGroupList) {
-                        TargetingPredicateResult result= targetingEvaluator.evaluate(targetingGroup);
+                        TargetingPredicateResult result = targetingEvaluator.evaluate(targetingGroup);
                         if(result.isTrue()){return new GeneratedAdvertisement(advertisementContent);}
                     }
 
@@ -92,4 +93,6 @@ public class AdvertisementSelectionLogic {
 
         return generatedAdvertisement;
     }
+
+
 }

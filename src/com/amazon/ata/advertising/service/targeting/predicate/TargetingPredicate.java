@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public abstract class TargetingPredicate {
+public abstract class TargetingPredicate implements Runnable{
 
     protected boolean inverse;
 
@@ -72,5 +72,10 @@ public abstract class TargetingPredicate {
 
     public boolean isInverse() {
         return inverse;
+    }
+
+    @Override
+    public void run() {
+
     }
 }
