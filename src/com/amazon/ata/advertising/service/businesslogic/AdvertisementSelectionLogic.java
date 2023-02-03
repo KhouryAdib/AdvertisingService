@@ -15,9 +15,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-
+import java.lang.Math;
 /**
  * This class is responsible for picking the advertisement to be rendered.
  */
@@ -71,19 +72,42 @@ public class AdvertisementSelectionLogic {
 
             if (CollectionUtils.isNotEmpty(contents)) {
 
+                TreeMap<TargetingGroup, AdvertisementContent> treemap =
+                        new TreeMap<TargetingGroup, AdvertisementContent>(new DoubleValueComparator());
+
                 for (AdvertisementContent advertisementContent: contents)
                 {
-
-                  List<TargetingGroup> targetingGroupList = targetingGroupDao.get(advertisementContent.getContentId());
+                    System.out.println("Content : "+ advertisementContent.toString());
+/*
+                    List<TargetingGroup> targetingGroupList = targetingGroupDao.get(advertisementContent.getContentId());
                    //sort list here
                    targetingGroupList = targetingGroupList.stream().sorted(Comparator.comparingDouble(TargetingGroup::getClickThroughRate)).collect(Collectors.toList());
-
                     for(TargetingGroup targetingGroup: targetingGroupList) {
                         TargetingPredicateResult result = targetingEvaluator.evaluate(targetingGroup);
                         if(result.isTrue()){return new GeneratedAdvertisement(advertisementContent);}
                     }
+*/
+
+                    //TreeMap<TargetingGroup, Double> treemap = new TreeMap<>(Comparator.comparingDouble(TargetingGroup::getClickThroughRate));
+
+
+                    List<TargetingGroup> targetingGroupList = targetingGroupDao.get(advertisementContent.getContentId());
+
+                    System.out.println("");
+                    for(TargetingGroup targetingGroup: targetingGroupList) {
+                        System.out.println(targetingGroup.toString());
+                        TargetingPredicateResult result = targetingEvaluator.evaluate(targetingGroup);
+
+                        if(result.isTrue()){
+                            treemap.put(targetingGroup,advertisementContent);
+                            System.out.println("Testing group Id: " +targetingGroup.getTargetingGroupId() + " | ClickThroughRate"+ targetingGroup.getClickThroughRate());
+                            //return new GeneratedAdvertisement(advertisementContent);
+                        }
+                    }
 
                 }
+
+                generatedAdvertisement = new GeneratedAdvertisement(treemap.get(treemap.lastKey()));
 
                // AdvertisementContent randomAdvertisementContent = contents.get(random.nextInt(contents.size()));
               //  generatedAdvertisement = new GeneratedAdvertisement(randomAdvertisementContent);
@@ -92,6 +116,14 @@ public class AdvertisementSelectionLogic {
         }
 
         return generatedAdvertisement;
+    }
+
+
+    class DoubleValueComparator implements Comparator<TargetingGroup> {
+        @Override
+        public int compare(TargetingGroup o1, TargetingGroup o2) {
+            return Double.compare(o1.getClickThroughRate(), o2.getClickThroughRate());
+        }
     }
 
 
